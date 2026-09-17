@@ -39,7 +39,36 @@ df["close_lag1"]=(
 计算未来一天收益率:
 ```python
 df["future_ret_1d"]=(
-                     df.groupby("stock_date")["close"].shift(-1)/df["close"]-1
+                     df.groupby("stock_code")["close"].shift(-1)/df["close"]-1
                      )
 #注意这里用到了shift(-1)，如果你的因子涉及这个信息，那么就是典型的look-ahead-bias 切记切记
+```
+
+#四、rolling() 函数使用
+rolling()函数和滚动窗口有很大的关联，Alpha_101中大量的因子难以实现，我们可以采用滚动窗口的方式来生产因子，同样这部分是量化笔试面试中重点的部分。
+## 1.过去20天的均值
+```python
+df["ma20"]=(
+             df.groupby["stock_code"].("close")
+              .transform(lambda x:
+                          x.rolling(20).mean()
+                         )
+              )
+#transform的好处就是既操作了比如求mean()，还不压缩行，例如原来100万行数据，处理完了还是100万行
+```
+## 2.过去20天的波动率
+```python
+df["vol20"]=(
+              df.groupby("stock_code")[ret]
+              .transform(lambda x:x.rolling(20).std())
+            )
+```
+
+## 3.过去20天的累积动量
+```python
+df["mom20"]=(
+             df.groupby("stock_code")["close"]
+             .transform(lambda x:x/x.shift(20)-1)
+             )
+#累积动量就是一个特殊的收益率，可以看作期末期初这样的
 ```
